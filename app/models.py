@@ -25,6 +25,7 @@ class MatchRequest(BaseModel):
     """Request model for match summary endpoint."""
     user_profile: UserProfile
     internship: InternshipDescription
+    api_key: Optional[str] = Field(None, description="Optional Gemini API key (if not set via environment)")
 
 
 class MatchSummaryResponse(BaseModel):

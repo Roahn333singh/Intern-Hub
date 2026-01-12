@@ -14,17 +14,24 @@ load_dotenv()
 class GeminiService:
     """Service for interacting with Gemini API with sophisticated prompts."""
     
-    def __init__(self):
-        """Initialize Gemini client with API key."""
-        # Try GEMINI_API_KEY first, then fallback to GOOGLE_API_KEY for compatibility
-        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError(
-                "GEMINI_API_KEY or GOOGLE_API_KEY environment variable is not set. "
-                "Please create a .env file in the project root with: GEMINI_API_KEY=your_api_key_here"
-            )
+    def __init__(self, api_key: str = None):
+        """Initialize Gemini client with API key.
         
-        genai.configure(api_key=api_key)
+        Args:
+            api_key: Optional API key. If not provided, uses environment variable.
+        """
+        # Use provided API key, or try GEMINI_API_KEY, then fallback to GOOGLE_API_KEY
+        if api_key:
+            self.api_key = api_key
+        else:
+            self.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            if not self.api_key:
+                raise ValueError(
+                    "GEMINI_API_KEY or GOOGLE_API_KEY environment variable is not set. "
+                    "Please create a .env file in the project root with: GEMINI_API_KEY=your_api_key_here"
+                )
+        
+        genai.configure(api_key=self.api_key)
         # Model can be configured via GEMINI_MODEL env var
         # Default: gemini-2.5-flash (latest flash model)
         # Alternative: gemini-pro (most stable, good free tier)

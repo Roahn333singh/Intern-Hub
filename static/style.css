@@ -178,6 +178,27 @@ header p {
     color: #856404;
 }
 
+.form-section input[type="password"] {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+.form-section small {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    display: block;
+}
+
+.form-section small a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.form-section small a:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 20px;

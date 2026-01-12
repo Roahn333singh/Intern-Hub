@@ -16,9 +16,20 @@ router = APIRouter()
 _gemini_service = None
 
 
-def get_gemini_service():
-    """Lazy initialization of Gemini service."""
+def get_gemini_service(api_key: str = None):
+    """Get Gemini service instance, optionally with custom API key.
+    
+    Args:
+        api_key: Optional API key. If provided, creates new service instance.
+                 If None, uses cached instance with environment API key.
+    """
     global _gemini_service
+    
+    # If API key provided, create new service instance
+    if api_key:
+        return GeminiService(api_key=api_key)
+    
+    # Otherwise use cached instance
     if _gemini_service is None:
         _gemini_service = GeminiService()
     return _gemini_service
@@ -36,7 +47,8 @@ async def get_match_summary(request: MatchRequest):
         user_profile_dict = request.user_profile.dict()
         internship_dict = request.internship.dict()
         
-        gemini_service = get_gemini_service()
+        # Use API key from request if provided, otherwise use environment key
+        gemini_service = get_gemini_service(api_key=request.api_key)
         result = gemini_service.generate_match_summary(user_profile_dict, internship_dict)
         
         return MatchSummaryResponse(
@@ -61,7 +73,7 @@ async def analyze_skill_gap(request: MatchRequest):
         user_profile_dict = request.user_profile.dict()
         internship_dict = request.internship.dict()
         
-        gemini_service = get_gemini_service()
+        gemini_service = get_gemini_service(api_key=request.api_key)
         result = gemini_service.analyze_skill_gaps(user_profile_dict, internship_dict)
         
         return SkillGapResponse(
@@ -85,7 +97,7 @@ async def get_recommendations(request: MatchRequest):
         user_profile_dict = request.user_profile.dict()
         internship_dict = request.internship.dict()
         
-        gemini_service = get_gemini_service()
+        gemini_service = get_gemini_service(api_key=request.api_key)
         result = gemini_service.generate_recommendations(user_profile_dict, internship_dict)
         
         return RecommendationResponse(
@@ -109,7 +121,7 @@ async def generate_resume(request: MatchRequest):
         user_profile_dict = request.user_profile.dict()
         internship_dict = request.internship.dict()
         
-        gemini_service = get_gemini_service()
+        gemini_service = get_gemini_service(api_key=request.api_key)
         # Generate resume with recommended text (will auto-generate recommendations if needed)
         result = gemini_service.generate_resume(user_profile_dict, internship_dict)
         
@@ -138,7 +150,7 @@ async def calculate_confidence(request: MatchRequest):
         user_profile_dict = request.user_profile.dict()
         internship_dict = request.internship.dict()
         
-        gemini_service = get_gemini_service()
+        gemini_service = get_gemini_service(api_key=request.api_key)
         result = gemini_service.calculate_ats_confidence(user_profile_dict, internship_dict)
         
         return ConfidenceResponse(
