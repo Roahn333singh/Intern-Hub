@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternHub AI - Internship Matching</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>InternHub AI</h1>
+            <p>AI-Powered Internship Matching System</p>
+        </header>
+
+        <div class="form-section">
+            <h2>Your Profile</h2>
+            <div class="form-group">
+                <label for="skills">Skills (comma-separated):</label>
+                <textarea id="skills" placeholder="e.g., Python, JavaScript, Machine Learning, Communication"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="interests">Interests (comma-separated):</label>
+                <textarea id="interests" placeholder="e.g., Web Development, Data Science, AI/ML"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="experience">Experience (optional):</label>
+                <textarea id="experience" placeholder="Brief description of your work experience"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="education">Education (optional):</label>
+                <textarea id="education" placeholder="Your educational background"></textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Internship Details</h2>
+            <div class="form-group">
+                <label for="jobTitle">Job Title:</label>
+                <input type="text" id="jobTitle" placeholder="e.g., Software Engineering Intern">
+            </div>
+            <div class="form-group">
+                <label for="company">Company (optional):</label>
+                <input type="text" id="company" placeholder="Company name">
+            </div>
+            <div class="form-group">
+                <label for="jobDescription">Job Description:</label>
+                <textarea id="jobDescription" rows="6" placeholder="Paste the full job description here"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="requirements">Requirements (comma-separated):</label>
+                <textarea id="requirements" placeholder="e.g., Python, React, Git, Problem-solving"></textarea>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button onclick="getMatchSummary()">Get Match Summary</button>
+            <button onclick="analyzeSkillGap()">Analyze Skill Gaps</button>
+            <button onclick="getRecommendations()">Get Recommendations</button>
+            <button onclick="generateResume()">Generate Resume</button>
+            <button onclick="calculateConfidence()">Calculate ATS Confidence</button>
+        </div>
+        
+        <div class="processing-note">
+            <p><strong>Note:</strong> Processing may take 10-30 seconds depending on the complexity of the analysis. Please be patient while the AI processes your request.</p>
+        </div>
+
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        function getUserProfile() {
+            const skills = document.getElementById('skills').value.split(',').map(s => s.trim()).filter(s => s);
+            const interests = document.getElementById('interests').value.split(',').map(i => i.trim()).filter(i => i);
+            const experience = document.getElementById('experience').value.trim();
+            const education = document.getElementById('education').value.trim();
+
+            return {
+                skills: skills,
+                interests: interests,
+                experience: experience || undefined,
+                education: education || undefined
+            };
+        }
+
+        function getInternship() {
+            const requirements = document.getElementById('requirements').value.split(',').map(r => r.trim()).filter(r => r);
+            
+            return {
+                title: document.getElementById('jobTitle').value.trim(),
+                description: document.getElementById('jobDescription').value.trim(),
+                requirements: requirements,
+                company: document.getElementById('company').value.trim() || undefined
+            };
+        }
+
+        function getRequestData() {
+            return {
+                user_profile: getUserProfile(),
+                internship: getInternship()
+            };
+        }
+
+        function validateInputs() {
+            const userProfile = getUserProfile();
+            const internship = getInternship();
+
+            if (userProfile.skills.length === 0) {
+                alert('Please enter at least one skill');
+                return false;
+            }
+            if (userProfile.interests.length === 0) {
+                alert('Please enter at least one interest');
+                return false;
+            }
+            if (!internship.title || !internship.description) {
+                alert('Please enter job title and description');
+                return false;
+            }
+            if (internship.requirements.length === 0) {
+                alert('Please enter at least one requirement');
+                return false;
+            }
+            return true;
+        }
+
+        function showLoading(endpoint) {
+            document.getElementById('results').innerHTML = `
+                <div class="loading">
+                    <p>Processing ${endpoint}...</p>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">This may take 10-30 seconds. Please wait...</p>
+                </div>
+            `;
+        }
+
+        function displayResults(data, title) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="result-section">
+                    <h3>${title}</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        function displayError(error, title) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="result-section error">
+                    <h3>${title} - Error</h3>
+                    <p>${error}</p>
+                </div>
+            `;
+        }
+
+        async function callAPI(endpoint, title) {
+            if (!validateInputs()) return;
+
+            showLoading(title);
+            const requestData = getRequestData();
+
+            try {
+                const response = await fetch(`/api/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Request failed');
+                }
+
+                const data = await response.json();
+                displayResults(data, title);
+            } catch (error) {
+                displayError(error.message, title);
+            }
+        }
+
+        function getMatchSummary() {
+            callAPI('match-summary', 'Match Summary');
+        }
+
+        function analyzeSkillGap() {
+            callAPI('skill-gap', 'Skill Gap Analysis');
+        }
+
+        function getRecommendations() {
+            callAPI('recommendation', 'Recommendations');
+        }
+
+        function generateResume() {
+            callAPI('resume', 'Generated Resume');
+        }
+
+        function calculateConfidence() {
+            callAPI('confidence', 'ATS Confidence Score');
+        }
+    </script>
+</body>
+</html>
+
