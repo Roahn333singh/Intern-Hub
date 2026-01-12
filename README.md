@@ -2,6 +2,12 @@
 
 An intelligent internship matching platform that uses Google's Gemini API to analyze candidate profiles and provide comprehensive insights including match summaries, skill gap analysis, recommendations, resume generation, and ATS confidence scores.
 
+## 🌐 Live Application
+
+**Deployed Application**: [https://intern-hub-uarq.onrender.com/](https://intern-hub-uarq.onrender.com/)
+
+> **⚠️ Important Note**: After deployment and testing, the developer has removed the API key for security reasons. Please paste your own Gemini API key in the "API Configuration" section on the deployed application to use the service.
+
 ## Overview
 
 InternHub AI is a FastAPI-based application that leverages advanced prompt engineering and AI reasoning to help students and job seekers understand their fit for internship positions. The system takes structured user input (skills and interests) along with internship descriptions, then generates detailed analysis through well-designed prompts focused on logical reasoning.
@@ -276,13 +282,20 @@ Each prompt follows this pattern:
 
 ## Deployment
 
+### Live Deployment
+
+The application is currently deployed on Render:
+- **Live URL**: [https://intern-hub-uarq.onrender.com/](https://intern-hub-uarq.onrender.com/)
+
+> **⚠️ API Key Required**: After deployment and testing, the developer has removed the API key for security reasons. To use the deployed application, please paste your own Gemini API key in the "API Configuration" section on the web interface. You can get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey).
+
 ### Deploy to Render
 
 1. Create a new Web Service on Render
 2. Connect your GitHub repository
-3. Set build command: `pip install -r requirements.txt`
+3. Set build command: `pip install --upgrade pip && pip install --prefer-binary -r requirements.txt`
 4. Set start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Add environment variable: `GEMINI_API_KEY=your_key`
+5. Add environment variable: `GEMINI_API_KEY=your_key` (optional - users can also provide it via UI)
 
 
 
